@@ -9,6 +9,7 @@ using StageManager.Native.Window;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -23,7 +24,7 @@ namespace StageManager
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml
 	/// </summary>
-	public partial class MainWindow : Window
+	public partial class MainWindow : Window, INotifyPropertyChanged
 	{
 		private const int TIMERINTERVAL_MILLISECONDS = 500;
 		private const int MAX_SCENES = 6;
@@ -36,6 +37,7 @@ namespace StageManager
 		private Point _mouse = new Point(0, 0);
 		private SceneModel _removedCurrentScene;
 		private SceneModel _mouseDownScene;
+		public event PropertyChangedEventHandler? PropertyChanged;
 
 		public bool EnableWindowDropToScene = false;
 		public bool EnableWindowPullToScene = true;
@@ -264,6 +266,8 @@ namespace StageManager
 
 		public IntPtr Handle => _thisHandle;
 
+		public Visibility SceneIconsVisibility => Mode == WindowMode.OffScreen ? Visibility.Collapsed : Visibility.Visible;
+
 		public WindowMode Mode
 		{
 			get => _mode;
@@ -273,6 +277,7 @@ namespace StageManager
 					return;
 
 				_mode = value;
+				RaisePropertyChanged(nameof(SceneIconsVisibility));
 
 				this.Topmost = value == WindowMode.Flyover;
 
@@ -296,6 +301,11 @@ namespace StageManager
 			animation.KeyFrames.Add(new EasingDoubleKeyFrame(newLeft, KeyTime.FromPercent(1.0), easingFunction));
 
 			BeginAnimation(LeftProperty, animation);
+		}
+
+		private void RaisePropertyChanged(string propertyName)
+		{
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
 		private void StartHook()

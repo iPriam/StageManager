@@ -1,4 +1,4 @@
-﻿using StageManager.Native.Interop;
+using StageManager.Native.Interop;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,6 +11,9 @@ namespace StageManager
 	/// </summary>
 	public partial class DwmThumbnail : UserControl
 	{
+		private const double DESTINATION_OVERSCAN_LEFT = 6;
+		private const double DESTINATION_OVERSCAN_BOTTOM = 6;
+
 		public DwmThumbnail()
 		{
 			InitializeComponent();
@@ -26,10 +29,37 @@ namespace StageManager
 			   typeof(DwmThumbnail),
 			   new PropertyMetadata(IntPtr.Zero));
 
+		public static readonly DependencyProperty OverlayInsetLeftProperty = DependencyProperty.Register(nameof(OverlayInsetLeft),
+			   typeof(double),
+			   typeof(DwmThumbnail),
+			   new PropertyMetadata(0d, OnOverlayInsetChanged));
+
+		public static readonly DependencyProperty OverlayInsetBottomProperty = DependencyProperty.Register(nameof(OverlayInsetBottom),
+			   typeof(double),
+			   typeof(DwmThumbnail),
+			   new PropertyMetadata(0d, OnOverlayInsetChanged));
+
 		public IntPtr PreviewHandle
 		{
 			get { return (IntPtr)GetValue(PreviewHandleProperty); }
 			set { SetValue(PreviewHandleProperty, value); }
+		}
+
+		public double OverlayInsetLeft
+		{
+			get { return (double)GetValue(OverlayInsetLeftProperty); }
+			set { SetValue(OverlayInsetLeftProperty, value); }
+		}
+
+		public double OverlayInsetBottom
+		{
+			get { return (double)GetValue(OverlayInsetBottomProperty); }
+			set { SetValue(OverlayInsetBottomProperty, value); }
+		}
+
+		private static void OnOverlayInsetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			((DwmThumbnail)d).UpdateThumbnailProperties();
 		}
 
 		private Point GetDpiScaleFactor()
@@ -102,8 +132,8 @@ namespace StageManager
 			var thumbnailRect = new RECT
 			{
 				top = (int)(previewBounds.Top * dpi.Y),
-				left = (int)(previewBounds.Left * dpi.X),
-				bottom = (int)((previewBounds.Bottom - Margin.Top - Margin.Bottom) * dpi.Y) + 1,
+				left = (int)((previewBounds.Left + OverlayInsetLeft - DESTINATION_OVERSCAN_LEFT) * dpi.X),
+				bottom = (int)((previewBounds.Bottom - Margin.Top - Margin.Bottom - OverlayInsetBottom + DESTINATION_OVERSCAN_BOTTOM) * dpi.Y) + 1,
 				right = (int)((previewBounds.Right - Margin.Left - Margin.Right) * dpi.X) + 1
 			};
 
@@ -115,6 +145,7 @@ namespace StageManager
 				rcDestination = thumbnailRect,
 				fSourceClientAreaOnly = true
 			};
+
 			NativeMethods.DwmUpdateThumbnailProperties(_dwmThumbnail, ref props);
 		}
 	}

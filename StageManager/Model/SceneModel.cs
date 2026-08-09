@@ -69,6 +69,7 @@ namespace StageManager.Model
 			}
 
 			Updated = DateTime.UtcNow;
+			RaisePropertyChanged(nameof(PrimaryWindow));
 		}
 
 		private void Scene_SelectedChanged(object? sender, EventArgs e)
@@ -119,5 +120,7 @@ namespace StageManager.Model
 		public System.Windows.Visibility Visibility => IsVisible ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
 
 		public ObservableCollection<WindowModel> Windows { get; set; } = new ObservableCollection<WindowModel>();
+
+		public WindowModel PrimaryWindow => Windows.FirstOrDefault();
 	}
 }

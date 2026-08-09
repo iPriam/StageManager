@@ -44,12 +44,14 @@
         </Style>
     </Window.Resources>
     <StackPanel
-        VerticalAlignment="Center">
+        VerticalAlignment="Center"
+        ClipToBounds="False">
         <ItemsControl
             Name="scenesControl"
             HorizontalAlignment="Left"
             VerticalAlignment="Center"
-            Padding="12, 0, 0, 0"
+            Padding="28, 0, 0, 0"
+            ClipToBounds="False"
             ItemsSource="{Binding Scenes}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
@@ -64,52 +66,62 @@
                                     CommandParameter="{Binding .}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
-                        <!-- Windows -->
-                        <ItemsControl
-                            ItemsSource="{Binding Windows}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <Grid
-                                        Margin="0,0,0,0"></Grid>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <local:DwmThumbnail
-                                        PreviewHandle="{Binding Handle}"
-                                        MinHeight="100"
-                                        MinWidth="150"
-                                        Margin="0, 0, 0, 0" />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        <!-- Icons -->
-                        <ItemsControl
-                            VerticalAlignment="Center"
-                            HorizontalAlignment="Center"
-                            Margin="0,4,0,24"
-                            ItemsSource="{Binding Windows}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel
-                                        Orientation="Horizontal" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border>
+                        <Grid
+                            Margin="0,0,0,24"
+                            ClipToBounds="False">
+                            <Border
+                                x:Name="ScenePreviewAnchor"
+                                Background="Transparent" />
+                            <!-- Windows -->
+                            <ItemsControl
+                                ItemsSource="{Binding Windows}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <Grid
+                                            Margin="0,0,0,0"></Grid>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <local:DwmThumbnail
+                                            PreviewHandle="{Binding Handle}"
+                                            OverlayInsetLeft="6"
+                                            OverlayInsetBottom="6"
+                                            MinHeight="100"
+                                            MinWidth="150"
+                                            Margin="0, 0, 0, 0" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <Popup
+                                AllowsTransparency="True"
+                                Placement="Relative"
+                                PlacementTarget="{Binding ElementName=ScenePreviewAnchor}"
+                                HorizontalOffset="-22"
+                                VerticalOffset="82"
+                                IsOpen="{Binding IsVisible}"
+                                StaysOpen="True"
+                                PopupAnimation="None">
+                                <Border
+                                    Background="Transparent"
+                                    IsHitTestVisible="False"
+                                    Visibility="{Binding SceneIconsVisibility, Source={x:Reference thisWindow}}">
+                                    <Border
+                                        CornerRadius="18"
+                                        Padding="6">
                                         <Border.Effect>
                                             <DropShadowEffect
-                                                BlurRadius="20" />
+                                                BlurRadius="22"
+                                                ShadowDepth="0"
+                                                Opacity="0.45" />
                                         </Border.Effect>
                                         <Image
-                                            Margin="0, 0, 0, 0"
                                             Height="30"
-                                            Source="{Binding Icon}" />
+                                            Source="{Binding PrimaryWindow.Icon}" />
                                     </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                                </Border>
+                            </Popup>
+                        </Grid>
                     </StackPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
